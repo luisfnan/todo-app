@@ -14,7 +14,7 @@ export const Todo = ({ id, title, completed, onRemoveTodo, onComplete }: Props) 
                 type="checkbox"
                 className="toggle"
                 checked={completed}
-                onChange={() => { onComplete({ id, completed }) }}
+                onChange={(event) => { onComplete({ id, completed: event.target.checked }) }}
             />
             <label>{title}</label>
             <button
