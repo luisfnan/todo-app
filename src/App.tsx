@@ -1,6 +1,9 @@
 import { useState } from "react"
 import { Todos } from "./components/Todos";
-import { type ListOfTodos, Todo as TodoType } from "./types";
+import { type ListOfTodos, Todo as TodoType, FilterValue } from "./types";
+import { Footer } from "./components/Footer";
+import { TODO_FILTERS } from "./consts";
+import { Header } from "./components/Header";
 
 
 
@@ -26,9 +29,14 @@ const mockTodos: ListOfTodos = [
 function App(): JSX.Element {
 
   const [toDos, setTodos] = useState(mockTodos);
+  const [filterSelected, setFilterSelected] = useState<FilterValue>(TODO_FILTERS.ALL)
 
   const handleReove = (id: string) => {
     const newtodos = toDos.filter(todo => todo.id !== id);
+    setTodos(newtodos);
+  }
+  const onClearCompleted = () => {
+    const newtodos = toDos.filter(todo => todo.completed !== true);
     setTodos(newtodos);
   }
   const handleCompleted = (
@@ -46,14 +54,38 @@ function App(): JSX.Element {
     setTodos(newTodos)
   }
 
+  const handleFilterChange = (filter: FilterValue) => { setFilterSelected(filter) }
+
+  const filteredTodos = toDos.filter(todo => {
+    if (filterSelected === TODO_FILTERS.ACTIVE) return !todo.completed
+    if (filterSelected === TODO_FILTERS.COMPLETED) return todo.completed
+    return todo
+  })
+
+  const handleAddTodo = (title: string) => {
+    const newTodo: TodoType = {
+      id: crypto.randomUUID(),
+      title: title,
+      completed: false
+
+    }
+    const newTodos = [...toDos, newTodo]
+    setTodos(newTodos)
+  }
   return (
     <div className="todoapp">
-
+      <Header addTodo={handleAddTodo} />
       <Todos
 
         onComplete={handleCompleted}
         onRemoveTodo={handleReove}
-        todos={toDos} />
+        todos={filteredTodos} />
+      <Footer
+        activeCount={toDos.filter(todo => !todo.completed).length}
+        completedCount={toDos.length - toDos.filter(todo => !todo.completed).length}
+        onClearCompleted={onClearCompleted}
+        filterSelected={filterSelected}
+        handelFilterChange={handleFilterChange} />
     </div>
   )
 }
